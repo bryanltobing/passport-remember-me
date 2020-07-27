@@ -1,4 +1,5 @@
 const express = require('express');
+const uuid = require('uuid');
 const router = express.Router();
 const passport = require('passport');
 
@@ -29,18 +30,30 @@ router.post('/register', notAuth, async (req,res) => {
 });
 
 router.post('/login', notAuth, passport.authenticate('local', {
-    successRedirect: '/',
     failureRedirect: '/users/login',
     failureFlash: true
-}), (req, res, next) => {
-    if(!req.body.remember_me) {
+}), async (req, res, next) => {
+    if(!req.body.rememberMe) {
         return next();
     }
-    console.log("wow");
+    if(!req.user.rememberMe) {
+        req.user.rememberMe = uuid.v4();
+        await req.user.save();
+        console.log(req.user);
+    }
+    res.cookie('remember_me', req.user.rememberMe, {
+        path: '/',
+        httpOnly : true,
+        maxAge : 604800000 //7 days
+    });
+    next();
+}, (req, res) => {
+    res.redirect('/');
 });
 
 router.delete('/logout', (req, res) => {
     req.logOut();
+    res.cookie('remember_me', '')
     res.redirect('/users/login');
 });
 
