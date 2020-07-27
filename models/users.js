@@ -31,7 +31,8 @@ const userSchema = mongoose.Schema({
                 throw new Error("The password must be greater than 6")
             }
         }
-    }
+    },
+    rememberMe : String 
 }, {
     timestamps : true
 });

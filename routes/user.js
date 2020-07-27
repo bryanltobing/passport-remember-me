@@ -32,7 +32,12 @@ router.post('/login', notAuth, passport.authenticate('local', {
     successRedirect: '/',
     failureRedirect: '/users/login',
     failureFlash: true
-}));
+}), (req, res, next) => {
+    if(!req.body.remember_me) {
+        return next();
+    }
+    console.log("wow");
+});
 
 router.delete('/logout', (req, res) => {
     req.logOut();
